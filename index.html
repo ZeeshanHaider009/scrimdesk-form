@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>ScrimDesk: Tournament Manager</title>
+  <meta name="description" content="Run mobile esports scrims on WhatsApp: posters, registrations, payment checks and group links. Free, offline and private.">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // A registration link opened without the /r path still reaches the form.
+    if (/[?#&]d=/.test(location.search + location.hash)) location.replace('r' + location.search + location.hash);
+  </script>
+</head>
+<body>
+<main>
+  <div class="brand" aria-hidden="true"><span class="brand-icon">🏆</span>ScrimDesk</div>
+  <h1>ScrimDesk: Tournament Manager</h1>
+  <p class="muted">Run mobile esports scrims without the WhatsApp chaos.</p>
+
+  <section class="card" style="margin-top:20px">
+    <ul class="steps" style="padding-left:20px;margin:0">
+      <li>Create a tournament and share its poster.</li>
+      <li>Players scan the QR code and send their registration on WhatsApp.</li>
+      <li>Check each payment screenshot and approve teams in one tap.</li>
+      <li>Send every team the group link in seconds.</li>
+    </ul>
+    <p class="muted small" style="margin-top:16px">Free. No account, no ads, no tracking. Everything stays on the organizer's phone.</p>
+  </section>
+
+  <p class="note">Got a registration link from an organizer? Open that link to register your team.</p>
+
+  <footer><p><a href="privacy.html">Privacy policy</a></p></footer>
+</main>
+</body>
+</html>

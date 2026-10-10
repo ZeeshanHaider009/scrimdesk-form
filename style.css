@@ -1,0 +1,168 @@
+/* ScrimDesk player pages. Same tokens as the apps: coral only for highlights, ink for the main action. */
+:root {
+  --bg: #f2f3f5;
+  --bg-top: #fcfcfd;
+  --card: #fff;
+  --card-border: rgba(17, 19, 23, .06);
+  --text: #111317;
+  --text-2: #6b7079;
+  --fill: #f1f2f4;
+  --input-border: rgba(17, 19, 23, .12);
+  --ink: #111317;
+  --on-ink: #fff;
+  --coral: #e8533f;
+  --coral-text: #c23f2c;
+  --coral-tint: rgba(232, 83, 63, .12);
+  --success: #1b7f46;
+  --success-tint: rgba(27, 127, 70, .12);
+  --shadow: 0 4px 12px rgba(17, 19, 23, .06);
+  --r-card: 22px;
+  --r-field: 14px;
+  --r-chip: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1013;
+    --bg-top: #16181c;
+    --card: #1a1c21;
+    --card-border: rgba(255, 255, 255, .07);
+    --text: #f2f3f5;
+    --text-2: #9ba1aa;
+    --fill: #24272d;
+    --input-border: rgba(255, 255, 255, .14);
+    --ink: #f2f3f5;
+    --on-ink: #111317;
+    --coral-text: #ff7a66;
+    --coral-tint: rgba(232, 83, 63, .18);
+    --success: #3dbe74;
+    --success-tint: rgba(61, 190, 116, .18);
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg) linear-gradient(var(--bg-top), var(--bg)) no-repeat;
+  background-size: 100% 320px;
+  color: var(--text);
+  font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+h1 { font-size: 32px; line-height: 1.15; letter-spacing: -.012em; margin: 0 0 4px; }
+h2 { font-size: 22px; line-height: 1.25; margin: 0; }
+h3 { font-size: 17px; margin: 20px 0 4px; }
+p { margin: 0; }
+
+.muted { color: var(--text-2); }
+.small { font-size: 15px; }
+.tiny { font-size: 13px; }
+.stack > * + * { margin-top: 16px; }
+
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 600; }
+.brand-icon {
+  width: 36px; height: 36px; border-radius: 11px; background: var(--coral); color: #fff;
+  display: grid; place-items: center; font-size: 18px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.pill {
+  display: inline-block; padding: 4px 12px; border-radius: 999px;
+  background: var(--coral-tint); color: var(--coral-text); font-weight: 600; font-size: 15px;
+}
+
+.facts { display: grid; grid-template-columns: 1.4fr 1fr .8fr; gap: 8px; margin-top: 16px; }
+.fact { background: var(--fill); border-radius: var(--r-chip); padding: 10px; min-width: 0; }
+.fact b { display: block; font-size: 17px; white-space: nowrap; }
+.fact span { font-size: 13px; color: var(--text-2); }
+
+.note { margin: 16px 4px; font-size: 15px; color: var(--text-2); }
+
+label, .label { display: block; font-size: 15px; font-weight: 500; color: var(--text-2); margin: 0 0 8px 2px; }
+.req { color: var(--coral); }
+.field + .field { margin-top: 18px; }
+
+input[type=text], input[type=tel] {
+  width: 100%; min-height: 52px; padding: 0 16px;
+  border: 1px solid var(--input-border); border-radius: var(--r-field);
+  background: var(--card); color: var(--text); font: inherit;
+}
+input:focus { outline: none; border: 1.5px solid var(--ink); }
+input[aria-invalid=true] { border: 1.5px solid var(--coral); }
+
+.prefixed {
+  display: flex; align-items: center; min-height: 52px; padding-left: 16px;
+  border: 1px solid var(--input-border); border-radius: var(--r-field); background: var(--card);
+}
+.prefixed:focus-within { border: 1.5px solid var(--ink); }
+.prefixed.invalid { border: 1.5px solid var(--coral); }
+.prefixed span { color: var(--text-2); padding-right: 12px; border-right: 1px solid var(--input-border); }
+.prefixed input { border: 0; min-height: 50px; }
+.prefixed input:focus { border: 0; }
+
+.uids { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.error { color: var(--coral-text); font-size: 13px; margin: 6px 0 0 4px; }
+.error:empty { display: none; }
+
+.pay { display: flex; align-items: center; gap: 12px; }
+.pay div { flex: 1; min-width: 0; }
+.pay b { display: block; font-size: 20px; overflow-wrap: anywhere; }
+
+.drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 150px; padding: 16px; border: 1.5px dashed var(--input-border); border-radius: 18px;
+  text-align: center; cursor: pointer;
+}
+.drop.invalid { border-color: var(--coral); }
+.drop:focus-within { border-color: var(--ink); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.drop img { max-width: 100%; max-height: 260px; border-radius: 12px; }
+
+button, .button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 0 24px; border-radius: 999px; border: 0;
+  font: 600 17px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; cursor: pointer; text-decoration: none;
+}
+.primary { width: 100%; background: var(--ink); color: var(--on-ink); box-shadow: 0 4px 12px rgba(17, 19, 23, .12); }
+.secondary { background: var(--card); color: var(--text); border: 1px solid var(--input-border); }
+.small-button { min-height: 44px; padding: 0 16px; font-size: 15px; }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, .button:focus-visible, a:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+
+.check {
+  width: 64px; height: 64px; border-radius: 50%; margin: 8px auto 16px;
+  display: grid; place-items: center; background: var(--success-tint); color: var(--success); font-size: 30px;
+}
+.center { text-align: center; }
+
+ol.steps { padding-left: 20px; margin: 12px 0 0; }
+ol.steps li + li { margin-top: 6px; }
+
+footer { margin-top: 28px; text-align: center; font-size: 13px; color: var(--text-2); }
+footer a, a { color: var(--coral-text); }
+
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .primary:active { transform: scale(.98); }
+}

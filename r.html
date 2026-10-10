@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light dark">
+  <title>Tournament registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <div class="brand" aria-hidden="true"><span class="brand-icon">🏆</span>ScrimDesk</div>
+
+  <!-- Shown when the link can't be read -->
+  <section id="broken" class="card" hidden>
+    <h1>Link not working</h1>
+    <p class="muted">This registration link is broken. Ask the organizer for a new one.</p>
+  </section>
+
+  <!-- Registration form -->
+  <section id="register" hidden>
+    <div class="card">
+      <span class="pill" id="game"></span>
+      <h1 id="name" style="margin-top:12px"></h1>
+      <p class="muted" id="when"></p>
+      <div class="facts">
+        <div class="fact"><b id="prize"></b><span>Prize pool</span></div>
+        <div class="fact"><b id="fee"></b><span>Entry fee</span></div>
+        <div class="fact"><b id="teams"></b><span>Teams</span></div>
+      </div>
+    </div>
+
+    <p class="note">Only team name, WhatsApp number and payment screenshot are required.</p>
+
+    <form id="form" class="stack" novalidate>
+      <div class="card">
+        <div class="field">
+          <label for="team">Team name <span class="req">*</span></label>
+          <input id="team" type="text" maxlength="32" autocomplete="off" autocapitalize="words" required aria-describedby="team-error">
+          <p class="error" id="team-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="wa">Captain's WhatsApp <span class="req">*</span></label>
+          <div class="prefixed" id="wa-box">
+            <span id="dial"></span>
+            <input id="wa" type="tel" inputmode="tel" autocomplete="tel-national" required aria-describedby="wa-error">
+          </div>
+          <p class="error" id="wa-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="captain">Captain name</label>
+          <input id="captain" type="text" maxlength="40" autocomplete="name" autocapitalize="words">
+        </div>
+        <div class="field">
+          <span class="label" id="uid-label">Player game IDs (UIDs)</span>
+          <div class="uids" role="group" aria-labelledby="uid-label">
+            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 1 UID" placeholder="Player 1">
+            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 2 UID" placeholder="Player 2">
+            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 3 UID" placeholder="Player 3">
+            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 4 UID" placeholder="Player 4">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">Pay the entry fee</span>
+        <div class="pay">
+          <div>
+            <span class="muted small" id="method"></span>
+            <b id="number"></b>
+          </div>
+          <button type="button" class="secondary small-button" id="copy" aria-label="Copy payment number">Copy</button>
+        </div>
+        <h3>Payment screenshot <span class="req">*</span></h3>
+        <label class="drop" id="drop" for="shot">
+          <input id="shot" type="file" accept="image/*" aria-describedby="shot-error shot-hint">
+          <img id="preview" alt="Your payment screenshot" hidden>
+          <span id="drop-text"><b>Choose screenshot</b><br><span class="muted small" id="shot-hint">It stays on your phone until you send it.</span></span>
+        </label>
+        <p class="error" id="shot-error" aria-live="polite"></p>
+      </div>
+
+      <button type="submit" class="button primary" id="send">Send registration on WhatsApp</button>
+    </form>
+  </section>
+
+  <!-- After WhatsApp opened without the screenshot attached -->
+  <section id="attach" class="card" hidden>
+    <h2>One more step</h2>
+    <p class="muted">WhatsApp opened with your registration message.</p>
+    <ol class="steps">
+      <li>Send the message to the organizer.</li>
+      <li>In the same chat, tap 📎 or +, choose Gallery or Photos, and send your payment screenshot.</li>
+    </ol>
+    <div class="stack" style="margin-top:20px">
+      <button type="button" class="button primary" id="sent-both">I sent both</button>
+      <a class="button secondary" id="open-again" href="#">Open WhatsApp again</a>
+    </div>
+  </section>
+
+  <!-- Done -->
+  <section id="done" class="card center" hidden>
+    <div class="check" aria-hidden="true">✓</div>
+    <h2>Registration sent.</h2>
+    <p class="muted" style="margin-top:8px">The organizer will confirm on WhatsApp.</p>
+    <p class="tiny muted" style="margin-top:20px">Didn't go through?</p>
+    <a class="button secondary small-button" id="retry" href="#" style="margin-top:8px">Send the message again</a>
+  </section>
+
+  <footer>
+    <p>Nothing you type here is sent anywhere except the WhatsApp chat you choose.</p>
+    <p><a href="privacy.html">Privacy</a></p>
+  </footer>
+</main>
+<script src="r.js"></script>
+</body>
+</html>
