@@ -179,14 +179,13 @@ main > .brand { margin: 16px 0 20px; }
 /* Short links: a ticket-shaped placeholder while the tournament loads */
 .loading { margin-top: 6px; text-align: center; font-size: 14px; }
 .ticket-skeleton {
-  position: relative; height: 236px; margin-bottom: 16px; border-radius: 28px; overflow: hidden;
+  position: relative; height: 210px; margin-bottom: 16px; border-radius: 28px; overflow: hidden;
   background: linear-gradient(160deg, #1f2129, #0d0e12); box-shadow: 0 34px 60px -26px rgba(17, 19, 23, .5);
 }
 .ticket-skeleton i { position: absolute; left: 20px; height: 14px; border-radius: 8px; background: rgba(255, 255, 255, .1); }
 .ticket-skeleton i:nth-child(1) { top: 22px; width: 120px; height: 32px; border-radius: 999px; }
 .ticket-skeleton i:nth-child(2) { top: 80px; width: 62%; height: 30px; }
-.ticket-skeleton i:nth-child(3) { top: 126px; width: 42%; }
-.ticket-skeleton i:nth-child(4) { top: 168px; right: 20px; height: 48px; border-radius: 14px; }
+.ticket-skeleton i:nth-child(3) { top: 142px; right: 20px; height: 48px; border-radius: 14px; }
 .ticket-skeleton::after {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .07) 50%, transparent 70%);
@@ -221,7 +220,6 @@ main > .brand { margin: 16px 0 20px; }
 .ticket > :not(.ticket-bg) { position: relative; }
 .ticket-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; transform: translateZ(26px); }
 .ticket h1 { margin: 16px 0 6px; font-size: 30px; overflow-wrap: anywhere; transform: translateZ(44px); text-shadow: 0 6px 24px rgba(0, 0, 0, .35); }
-.ticket-when { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, .78); font-size: 15px; transform: translateZ(30px); }
 .ticket-cut { height: 0; margin: 18px -20px 16px; border-top: 1.5px dashed rgba(255, 255, 255, .18); }
 /* The prize gets its own row; fee and registered share the next one (or fill it alone). */
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; transform: translateZ(34px); }

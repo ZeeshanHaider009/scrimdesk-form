@@ -12,7 +12,7 @@ confetti) is CSS transforms only, and it switches off for people who ask their p
 | `index.html` | Short landing page. A link that arrives here with `?d=` is passed on to `r`. |
 | `style.css` | Shared styles, light and dark. |
 
-The pages load `r.js?v=4`, `countries.js?v=4` and `style.css?v=4`. Bump the number whenever those files change, so players who
+The pages load `r.js?v=5`, `countries.js?v=5` and `style.css?v=5`. Bump the number whenever those files change, so players who
 opened the form before get the new version instead of a cached one.
 
 ## How it fits with the apps

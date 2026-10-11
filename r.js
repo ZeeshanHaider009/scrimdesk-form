@@ -95,7 +95,7 @@
     };
   }
 
-  // ---- Formatting (same rules as the app's Money and date labels) ----
+  // ---- Formatting (same rules as the app's Money) ----
 
   function group(amount, indian) {
     var digits = String(Math.abs(Math.round(amount)));
@@ -112,13 +112,6 @@
     var symbol = SYMBOLS[cur] || cur;
     var grouped = group(amount, !!INDIAN_GROUPING[cur]);
     return symbol.length > 1 ? symbol + ' ' + grouped : symbol + grouped;
-  }
-
-  function when(millis) {
-    var d = new Date(millis);
-    var day = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    var time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    return day + ' \u00B7 ' + time;
   }
 
   // ---- Phone numbers (mirrors PhoneNumber.normalize in the app) ----
@@ -416,7 +409,6 @@
     document.title = p.n + ' \u00B7 Registration';
     $('game').textContent = GAMES[p.g] || 'Tournament';
     $('name').textContent = p.n;
-    $('when').textContent = when(p.t);
     // Tournaments made after the app dropped the prize step carry no prize or fee: the poster shows them.
     $('prize').textContent = p.p ? money(p.p, p.cur) : '';
     $('prize-fact').hidden = !p.p;

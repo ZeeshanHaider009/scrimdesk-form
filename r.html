@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0b0c10" media="(prefers-color-scheme: dark)">
   <title>Tournament registration</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -39,7 +39,7 @@
 <main>
   <!-- Short links: the tournament is loading from the server -->
   <section id="loading" class="loading" hidden>
-    <div class="ticket-skeleton" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="ticket-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
     <p class="muted" role="status">Loading tournament&hellip;</p>
   </section>
 
@@ -84,10 +84,6 @@
           <span class="live"><i aria-hidden="true"></i>Registration open</span>
         </div>
         <h1 id="name"></h1>
-        <p class="ticket-when">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
-          <span id="when"></span>
-        </p>
         <div class="ticket-cut" aria-hidden="true"></div>
         <div class="facts">
           <div class="fact" id="prize-fact"><span>Prize pool</span><b id="prize"></b></div>
@@ -266,7 +262,7 @@
 </dialog>
 
 <div class="confetti" id="confetti" aria-hidden="true"></div>
-<script src="countries.js?v=4"></script>
-<script src="r.js?v=4"></script>
+<script src="countries.js?v=5"></script>
+<script src="r.js?v=5"></script>
 </body>
 </html>
