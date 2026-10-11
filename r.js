@@ -39,6 +39,12 @@
     BANK: 'Bank transfer', MOBILE_WALLET: 'Mobile wallet', OTHER: 'Payment'
   };
 
+  // The method's code ("JAZZCASH") as its name; anything else is the organizer's own name for it ("SadaPay").
+  function methodLabel(pm) {
+    if (pm && Object.prototype.hasOwnProperty.call(METHODS, pm)) return METHODS[pm];
+    return pm || 'Payment';
+  }
+
   function $(id) { return document.getElementById(id); }
   function show(id) {
     ['loading', 'offline', 'broken', 'closed', 'register', 'done'].forEach(function (s) { $(s).hidden = s !== id; });
@@ -417,7 +423,7 @@
     $('teams').textContent = String(p.tt);
     // Players usually live where the organizer does, so the organizer's code comes first.
     setCountry(countryForDial(dial));
-    $('method').textContent = (METHODS[p.pm] || 'Payment') + (p.f > 0 ? ' \u00B7 ' + money(p.f, p.cur) : '');
+    $('method').textContent = methodLabel(p.pm) + (p.f > 0 ? ' \u00B7 ' + money(p.f, p.cur) : '');
     $('number').textContent = p.pn || '\u2013';
     $('pay-info').hidden = !p.pn;
     show('register');
