@@ -402,6 +402,7 @@ input[aria-invalid=true] { border-color: var(--coral); }
 .pay-text { position: relative; flex: 1; min-width: 0; }
 .pay-method { display: block; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .86); }
 .pay b { display: block; margin-top: 2px; font-size: 22px; letter-spacing: .02em; overflow-wrap: anywhere; }
+.pay-holder { display: block; margin-top: 4px; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .9); overflow-wrap: anywhere; }
 .copy {
   position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px;
   border-radius: 999px; border: 1px solid rgba(255, 255, 255, .4); background: rgba(255, 255, 255, .18);

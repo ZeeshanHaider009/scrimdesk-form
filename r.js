@@ -97,7 +97,8 @@
     if (!text('name') || !fields.startAt) return null;
     return {
       i: id, n: text('name'), g: text('game'), t: number('startAt'), tt: number('teams'), f: number('fee'),
-      p: number('prize'), cur: text('currency'), pm: text('payMethod'), pn: text('payNumber'), dc: text('dial')
+      p: number('prize'), cur: text('currency'), pm: text('payMethod'), pn: text('payNumber'), ah: text('payName'),
+      dc: text('dial')
     };
   }
 
@@ -426,6 +427,9 @@
     $('method').textContent = methodLabel(p.pm) + (p.f > 0 ? ' \u00B7 ' + money(p.f, p.cur) : '');
     $('number').textContent = p.pn || '\u2013';
     $('pay-info').hidden = !p.pn;
+    // The name on the account, so players can check it before they pay.
+    $('holder').textContent = p.ah ? 'Account holder: ' + p.ah : '';
+    $('holder').hidden = !p.ah;
     show('register');
   }
 
