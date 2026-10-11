@@ -17,7 +17,7 @@ opened the form before get the new version instead of a cached one.
 
 - The apps build the link as `https://{FORM_HOST}/r?d={payload}`.
   `FORM_HOST` lives in one place: `shared/src/commonMain/kotlin/com/scrimdesk/app/shared/AppConfig.kt`
-  (`zeeshanhaider009.github.io/scrimdesk` today).
+  (`zeeshanhaider009.github.io/scrimdesk-form` today).
 - `payload` is base64url JSON with the keys `i c n g t f cur pm pn wa tt p dc` (`FormLink.kt`). `i` is the
   tournament id the registration is filed under; links made before it existed show "ask the organizer to share
   the tournament again". `dc` is the organizer's dial code; older links fall back to the currency.
@@ -30,12 +30,24 @@ opened the form before get the new version instead of a cached one.
 
 ## Deploy on GitHub Pages (current setup)
 
-1. Push the repo to GitHub (`ZeeshanHaider009/scrimdesk`).
-2. Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. The workflow `.github/workflows/pages.yml` publishes this folder on every push to `main` that touches
-   `webform/` (or run it from the Actions tab).
-4. Open `https://zeeshanhaider009.github.io/scrimdesk/privacy.html` to check. GitHub Pages serves `r.html`
-   at `/r`, which is the path the apps use.
+The app repo is private, and GitHub Pages is free only for public repos. So this folder (and only this folder)
+is published from a separate public repo, **`ZeeshanHaider009/scrimdesk-form`**, and the source of truth stays
+here.
+
+One-time setup:
+
+1. On GitHub, create the empty public repo `scrimdesk-form` (no README, license or .gitignore).
+2. In this repo: `git remote add form https://github.com/ZeeshanHaider009/scrimdesk-form.git`
+3. Publish (also after every change to this folder, once it is committed):
+
+   ```bash
+   git subtree push --prefix=webform form main
+   ```
+
+4. In `scrimdesk-form`: **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+   branch **`main`**, folder **`/ (root)`**. `.nojekyll` makes Pages serve the files as they are.
+5. Open `https://zeeshanhaider009.github.io/scrimdesk-form/privacy.html` to check. GitHub Pages serves
+   `r.html` at `/r`, which is the path the apps use.
 
 ## Deploy on Cloudflare Pages (alternative)
 
