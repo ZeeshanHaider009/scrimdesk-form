@@ -17,7 +17,7 @@ opened the form before get the new version instead of a cached one.
 
 - The apps build the link as `https://{FORM_HOST}/r?d={payload}`.
   `FORM_HOST` lives in one place: `shared/src/commonMain/kotlin/com/scrimdesk/app/shared/AppConfig.kt`
-  (`zeeshanhaider009.github.io/scrimdesk-form` today).
+  (`scrimdesk.web.app` today).
 - `payload` is base64url JSON with the keys `i c n g t f cur pm pn wa tt p dc` (`FormLink.kt`). `i` is the
   tournament id the registration is filed under; links made before it existed show "ask the organizer to share
   the tournament again". `dc` is the organizer's dial code; older links fall back to the currency.
@@ -28,7 +28,24 @@ opened the form before get the new version instead of a cached one.
 - Field names and limits match `FirestoreDocuments` in the app and `firebase/firestore.rules`. Change all three
   together.
 
-## Deploy on GitHub Pages (current setup)
+## Deploy on Firebase Hosting (current setup)
+
+The form is served at **https://scrimdesk.web.app** by the Firebase Hosting site `scrimdesk` in the same
+Firebase project as the registrations (`firebase.json` and `.firebaserc` in the repo root). `cleanUrls` serves
+`r.html` at `/r`, the path the apps use.
+
+1. Firebase CLI (installed on drive D: here): `D:\tools\firebase\node_modules\.bin\firebase.cmd login` once.
+2. Deploy after every change to this folder:
+
+   ```bash
+   firebase deploy --only hosting
+   ```
+
+3. Open `https://scrimdesk.web.app/privacy.html` to check.
+
+## GitHub Pages copy (older links)
+
+Links shared before the move point at `zeeshanhaider009.github.io/scrimdesk-form`, so that copy stays up.
 
 The app repo is private, and GitHub Pages is free only for public repos. So this folder (and only this folder)
 is published from a separate public repo, **`ZeeshanHaider009/scrimdesk-form`**, and the source of truth stays
