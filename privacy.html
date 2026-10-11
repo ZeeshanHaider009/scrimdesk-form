@@ -5,33 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <title>Privacy policy · ScrimDesk</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <main>
   <div class="brand" aria-hidden="true"><span class="brand-icon">🏆</span>ScrimDesk</div>
   <h1>Privacy policy</h1>
-  <p class="muted">ScrimDesk: Tournament Manager · Last updated 10 October 2026</p>
+  <p class="muted">ScrimDesk: Tournament Manager · Last updated 11 October 2026</p>
 
-  <!-- Same text as PrivacyPolicy.kt in the app (Profile → Privacy). Keep both in sync. -->
+  <!-- Linked from the store listings. Update it whenever the app starts handling data differently. -->
   <article class="card" style="margin-top:20px">
     <h3 style="margin-top:0">In short</h3>
-    <p class="muted">ScrimDesk: Tournament Manager has no accounts, no servers, no ads, no analytics and no tracking. Everything you enter stays on your phone. We never see it.</p>
+    <p class="muted">ScrimDesk: Tournament Manager has no accounts, no ads, no analytics and no tracking. Your tournaments and teams stay on your phone. The only thing that passes through a server is a player's registration, on its way from the registration page to the organizer's app, and it is deleted from the server as soon as the app has it.</p>
 
     <h3>What the app keeps on your phone</h3>
-    <p class="muted">Your organizer profile (name, WhatsApp number and an optional logo), your tournaments, and the registrations you add: team name, captain name, captain WhatsApp number, player game IDs, payment screenshots and team logos. It is stored in the app's private storage.</p>
+    <p class="muted">Your organizer profile (name, WhatsApp number and an optional logo), your tournaments and their posters, and the registrations: team name and tag, the name and WhatsApp number of the player who registered the team, players' in-game names and game IDs, payment screenshots and team logos. It is stored in the app's private storage.</p>
 
     <h3>Who it is shared with</h3>
-    <p class="muted">Nobody, unless you choose to share. When you send a poster, a group link or a backup file, it goes through WhatsApp or another app you pick, under that app's own privacy policy. The poster's QR code contains the tournament details, the payment number you entered and your WhatsApp number, so players can register with you.</p>
+    <p class="muted">Nobody, unless you choose to share. When you send a poster or a group link, it goes through WhatsApp or another app you pick, under that app's own privacy policy. The registration link you share contains the tournament details, your payment number (if you set one) and your WhatsApp number, so players can register with you.</p>
 
     <h3>The player registration page</h3>
-    <p class="muted">Players fill in a small web page (zeeshanhaider009.github.io/scrimdesk). It runs only in the player's browser: it sends nothing to us, and the payment screenshot stays on the player's phone until they share it with you on WhatsApp. The page is hosted on GitHub Pages, which may keep standard technical logs (such as IP addresses) under GitHub's privacy policy.</p>
+    <p class="muted">Players fill in a small web page (zeeshanhaider009.github.io/scrimdesk). When they tap Send registration, what they entered (team name and tag, their name and WhatsApp number, players' names and game IDs, the payment screenshot and an optional team logo) is stored in Google Cloud Firestore (Firebase) for that tournament only. The organizer's ScrimDesk app downloads it and then deletes it from Firestore; registrations the app never collects are removed a day after the tournament starts. Only the organizer's app can read them. Google processes this data under the Firebase terms and privacy policy. The page itself is hosted on GitHub Pages, which may keep standard technical logs (such as IP addresses) under GitHub's privacy policy.</p>
 
-    <h3>Backups</h3>
-    <p class="muted">Backup files you create stay wherever you save or send them. If your phone's own backup is on (Google backup on Android, iCloud backup on iPhone), it may include ScrimDesk's data under your account.</p>
+    <h3>How the app connects</h3>
+    <p class="muted">To fetch registrations, the app signs in to Firebase anonymously: there is no account, email or password, only a random ID that marks which tournaments belong to this phone. Nothing else in the app is sent anywhere.</p>
+
+    <h3>Phone backups</h3>
+    <p class="muted">If your phone's own backup is on (Google backup on Android, iCloud backup on iPhone), it may include ScrimDesk's data under your account.</p>
 
     <h3>Permissions</h3>
-    <p class="muted">Photos: only the pictures you pick (logos and payment screenshots). On iPhone, saving a poster asks to add a photo to your library. On Android 8–9, saving a poster asks for storage access. Nothing else.</p>
+    <p class="muted">Photos: only the pictures you pick (posters, logos and payment screenshots). Internet: to download registrations from the registration page. Nothing else.</p>
 
     <h3>Money</h3>
     <p class="muted">ScrimDesk never handles payments. Entry fees go directly between players and organizers.</p>
@@ -40,7 +43,7 @@
     <p class="muted">ScrimDesk is made for tournament organizers and is not directed at children under 13.</p>
 
     <h3>Deleting your data</h3>
-    <p class="muted">Profile → Delete all data removes everything from this phone. Uninstalling the app does too.</p>
+    <p class="muted">Uninstalling the app removes everything it stored on this phone. Deleting a tournament in the app also deletes any of its registrations still waiting on the server. Players who want a registration removed can ask the organizer to delete it.</p>
 
     <h3>Contact</h3>
     <p class="muted">Questions about privacy: use the developer contact on the ScrimDesk page in Google Play or the App Store.</p>

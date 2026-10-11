@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex">
   <meta name="color-scheme" content="light dark">
   <title>Tournament registration</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <main>
@@ -16,7 +16,13 @@
   <!-- Shown when the link can't be read -->
   <section id="broken" class="card" hidden>
     <h1>Link not working</h1>
-    <p class="muted">This registration link is broken. Ask the organizer for a new one.</p>
+    <p class="muted" id="broken-text">This registration link is broken. Ask the organizer for a new one.</p>
+  </section>
+
+  <!-- The organizer's app closed registrations (full, started or deleted) -->
+  <section id="closed" class="card" hidden>
+    <h1>Registrations are closed</h1>
+    <p class="muted" id="closed-text">This tournament isn't taking registrations right now. Ask the organizer if there's still a slot.</p>
   </section>
 
   <!-- Registration form -->
@@ -26,45 +32,68 @@
       <h1 id="name" style="margin-top:12px"></h1>
       <p class="muted" id="when"></p>
       <div class="facts">
-        <div class="fact"><b id="prize"></b><span>Prize pool</span></div>
-        <div class="fact"><b id="fee"></b><span>Entry fee</span></div>
-        <div class="fact"><b id="teams"></b><span>Teams</span></div>
+        <div class="fact" id="prize-fact"><b id="prize"></b><span>Prize pool</span></div>
+        <div class="fact" id="fee-fact"><b id="fee"></b><span>Entry fee</span></div>
+        <div class="fact"><b id="teams"></b><span id="teams-label">Teams</span></div>
       </div>
+      <p class="muted small" id="full-note" style="margin-top:12px" hidden></p>
     </div>
 
-    <p class="note">Only team name, WhatsApp number and payment screenshot are required.</p>
+    <p class="note">Team name, your name, your WhatsApp number and the payment screenshot are required.</p>
 
     <form id="form" class="stack" novalidate>
       <div class="card">
+        <h2 class="card-title">Team</h2>
         <div class="field">
           <label for="team">Team name <span class="req">*</span></label>
           <input id="team" type="text" maxlength="32" autocomplete="off" autocapitalize="words" required aria-describedby="team-error">
           <p class="error" id="team-error" aria-live="polite"></p>
         </div>
         <div class="field">
-          <label for="wa">Captain's WhatsApp <span class="req">*</span></label>
-          <div class="prefixed" id="wa-box">
-            <span id="dial"></span>
-            <input id="wa" type="tel" inputmode="tel" autocomplete="tel-national" required aria-describedby="wa-error">
-          </div>
-          <p class="error" id="wa-error" aria-live="polite"></p>
+          <label for="tag">Team tag <span class="optional">optional</span></label>
+          <input id="tag" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="e.g. PHX">
         </div>
         <div class="field">
-          <label for="captain">Captain name</label>
-          <input id="captain" type="text" maxlength="40" autocomplete="name" autocapitalize="words">
-        </div>
-        <div class="field">
-          <span class="label" id="uid-label">Player game IDs (UIDs)</span>
-          <div class="uids" role="group" aria-labelledby="uid-label">
-            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 1 UID" placeholder="Player 1">
-            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 2 UID" placeholder="Player 2">
-            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 3 UID" placeholder="Player 3">
-            <input type="text" class="uid" maxlength="24" inputmode="text" autocomplete="off" aria-label="Player 4 UID" placeholder="Player 4">
+          <span class="label" id="logo-label">Team logo <span class="optional">optional</span></span>
+          <div class="logo-row">
+            <label class="logo-tile" for="logo">
+              <input id="logo" type="file" accept="image/*" aria-labelledby="logo-label">
+              <img id="logo-preview" alt="" hidden>
+              <span id="logo-plus" aria-hidden="true">+</span>
+            </label>
+            <span class="muted small" id="logo-text">Square images look best.</span>
+            <button type="button" class="secondary small-button" id="logo-remove" hidden>Remove</button>
           </div>
         </div>
       </div>
 
       <div class="card">
+        <h2 class="card-title">You</h2>
+        <div class="field">
+          <label for="person">Your name <span class="req">*</span></label>
+          <input id="person" type="text" maxlength="40" autocomplete="name" autocapitalize="words" required aria-describedby="person-error">
+          <p class="error" id="person-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="wa">Your WhatsApp <span class="req">*</span></label>
+          <div class="prefixed" id="wa-box">
+            <span id="dial"></span>
+            <input id="wa" type="tel" inputmode="tel" autocomplete="tel-national" required aria-describedby="wa-hint wa-error">
+          </div>
+          <p class="hint" id="wa-hint">The organizer sends the group link to this number.</p>
+          <p class="error" id="wa-error" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Players <span class="optional">optional</span></h2>
+        <p class="hint" style="margin:0 0 12px 2px">In-game name and UID for each player, up to 6.</p>
+        <div id="players" class="players"></div>
+        <button type="button" class="secondary small-button" id="add-player" style="margin-top:12px">Add player</button>
+      </div>
+
+      <div class="card">
+        <div id="pay-info">
         <span class="label">Pay the entry fee</span>
         <div class="pay">
           <div>
@@ -73,47 +102,36 @@
           </div>
           <button type="button" class="secondary small-button" id="copy" aria-label="Copy payment number">Copy</button>
         </div>
+        </div>
         <h3>Payment screenshot <span class="req">*</span></h3>
         <label class="drop" id="drop" for="shot">
           <input id="shot" type="file" accept="image/*" aria-describedby="shot-error shot-hint">
           <img id="preview" alt="Your payment screenshot" hidden>
-          <span id="drop-text"><b>Choose screenshot</b><br><span class="muted small" id="shot-hint">It stays on your phone until you send it.</span></span>
+          <span id="drop-text"><b>Choose screenshot</b><br><span class="muted small" id="shot-hint">Only the organizer of this tournament sees it.</span></span>
         </label>
         <p class="error" id="shot-error" aria-live="polite"></p>
       </div>
 
-      <button type="submit" class="button primary" id="send">Send registration on WhatsApp</button>
+      <div>
+        <button type="submit" class="button primary" id="send">Send registration</button>
+        <p class="error" id="send-error" aria-live="polite" style="text-align:center"></p>
+      </div>
     </form>
-  </section>
-
-  <!-- After WhatsApp opened without the screenshot attached -->
-  <section id="attach" class="card" hidden>
-    <h2>One more step</h2>
-    <p class="muted">WhatsApp opened with your registration message.</p>
-    <ol class="steps">
-      <li>Send the message to the organizer.</li>
-      <li>In the same chat, tap 📎 or +, choose Gallery or Photos, and send your payment screenshot.</li>
-    </ol>
-    <div class="stack" style="margin-top:20px">
-      <button type="button" class="button primary" id="sent-both">I sent both</button>
-      <a class="button secondary" id="open-again" href="#">Open WhatsApp again</a>
-    </div>
   </section>
 
   <!-- Done -->
   <section id="done" class="card center" hidden>
     <div class="check" aria-hidden="true">✓</div>
-    <h2>Registration sent.</h2>
-    <p class="muted" style="margin-top:8px">The organizer will confirm on WhatsApp.</p>
-    <p class="tiny muted" style="margin-top:20px">Didn't go through?</p>
-    <a class="button secondary small-button" id="retry" href="#" style="margin-top:8px">Send the message again</a>
+    <h2>Registration sent</h2>
+    <p class="muted" style="margin-top:8px" id="done-text">The organizer will check your payment. Once your team is approved, you'll get the group link on WhatsApp.</p>
+    <p style="margin-top:16px" id="done-count" hidden></p>
   </section>
 
   <footer>
-    <p>Nothing you type here is sent anywhere except the WhatsApp chat you choose.</p>
+    <p>What you send here goes only to this tournament's organizer and is removed from the server once their app has it.</p>
     <p><a href="privacy.html">Privacy</a></p>
   </footer>
 </main>
-<script src="r.js"></script>
+<script src="r.js?v=2"></script>
 </body>
 </html>

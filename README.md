@@ -1,36 +1,32 @@
 # ScrimDesk player form
 
-Static pages players open from the poster QR code. Plain HTML, CSS and JavaScript: no framework,
-no analytics, no cookies, nothing uploaded. About 25 KB in total.
+Static pages players open from the registration link organizers share with their poster. Plain HTML, CSS and JavaScript: no framework,
+no analytics, no cookies. About 30 KB in total.
 
 | File | What it is |
 |---|---|
-| `r.html` + `r.js` | Registration form. Reads the tournament from `?d=`, builds the SCRIMDESK block and sends it on WhatsApp. |
-| `privacy.html` | Privacy policy, the same text as Profile → Privacy in the apps (`PrivacyPolicy.kt`). |
+| `r.html` + `r.js` | Registration form. Reads the tournament from `?d=` and sends the registration to Firebase (see `firebase/README.md`). |
+| `privacy.html` | Privacy policy for the store listings. |
 | `index.html` | Short landing page. A link that arrives here with `?d=` is passed on to `r`. |
 | `style.css` | Shared styles, light and dark. |
+
+The pages load `r.js?v=2` and `style.css?v=2`. Bump the number whenever those files change, so players who
+opened the form before get the new version instead of a cached one.
 
 ## How it fits with the apps
 
 - The apps build the link as `https://{FORM_HOST}/r?d={payload}`.
   `FORM_HOST` lives in one place: `shared/src/commonMain/kotlin/com/scrimdesk/app/shared/AppConfig.kt`
   (`zeeshanhaider009.github.io/scrimdesk` today).
-- `payload` is base64url JSON with the keys `c n g t f cur pm pn wa tt p` (`FormLink.kt`).
-- The message the form sends must match `RegistrationParser.format` exactly:
-
-  ```
-  ----- SCRIMDESK -----
-  Code: FZR11L
-  Team: Team Phantom
-  WhatsApp: +923012345678
-  Captain: Ali Raza
-  UIDs: 482019334, 519027761
-  ---------------------
-  ```
-
-- Sending: if the browser can share files (`navigator.canShare({ files })`), the screenshot and the message go
-  through the share sheet together. Otherwise WhatsApp opens on `wa.me` with the message and the page explains
-  how to attach the screenshot.
+- `payload` is base64url JSON with the keys `i c n g t f cur pm pn wa tt p dc` (`FormLink.kt`). `i` is the
+  tournament id the registration is filed under; links made before it existed show "ask the organizer to share
+  the tournament again". `dc` is the organizer's dial code; older links fall back to the currency.
+- Sending: the form shrinks the payment screenshot (and optional logo) to a JPEG in the browser, then one
+  Firestore `commit` creates the document in `tournaments/{i}/registrations` and adds 1 to the tournament's
+  `registered` count, which the form shows as "3 / 16 registered". `r.js` holds the same `projectId`
+  and `apiKey` as `AppConfig.kt`; with them empty the form says online registration isn't set up.
+- Field names and limits match `FirestoreDocuments` in the app and `firebase/firestore.rules`. Change all three
+  together.
 
 ## Deploy on GitHub Pages (current setup)
 
@@ -58,4 +54,4 @@ so keep the old site up for a while.
 python -m http.server 8765 --directory webform
 ```
 
-Then open `http://localhost:8765/r.html?d=…` with a payload copied from a poster's "Copy link".
+Then open `http://localhost:8765/r.html?d=…` with a link shared from the app (Home → ⋮ → Share poster & link).

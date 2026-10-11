@@ -64,6 +64,7 @@ main {
 h1 { font-size: 32px; line-height: 1.15; letter-spacing: -.012em; margin: 0 0 4px; }
 h2 { font-size: 22px; line-height: 1.25; margin: 0; }
 h3 { font-size: 17px; margin: 20px 0 4px; }
+#pay-info[hidden] + h3 { margin-top: 0; }
 p { margin: 0; }
 
 .muted { color: var(--text-2); }
@@ -90,8 +91,9 @@ p { margin: 0; }
   background: var(--coral-tint); color: var(--coral-text); font-weight: 600; font-size: 15px;
 }
 
-.facts { display: grid; grid-template-columns: 1.4fr 1fr .8fr; gap: 8px; margin-top: 16px; }
-.fact { background: var(--fill); border-radius: var(--r-chip); padding: 10px; min-width: 0; }
+.facts { display: flex; gap: 8px; margin-top: 16px; }
+.fact { flex: 1 1 0; background: var(--fill); border-radius: var(--r-chip); padding: 10px; min-width: 0; }
+#prize-fact { flex-grow: 1.4; }
 .fact b { display: block; font-size: 17px; white-space: nowrap; }
 .fact span { font-size: 13px; color: var(--text-2); }
 
@@ -119,7 +121,22 @@ input[aria-invalid=true] { border: 1.5px solid var(--coral); }
 .prefixed input { border: 0; min-height: 50px; }
 .prefixed input:focus { border: 0; }
 
-.uids { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.card-title { font-size: 17px; margin: 0 0 14px 2px; }
+.optional { font-weight: 400; font-size: 13px; color: var(--text-2); }
+.hint { font-size: 13px; color: var(--text-2); margin: 6px 0 0 4px; }
+
+.players { display: grid; gap: 10px; }
+.player { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; }
+
+.logo-row { display: flex; align-items: center; gap: 12px; }
+.logo-row .muted { flex: 1; min-width: 0; }
+.logo-tile {
+  position: relative; flex: none; width: 64px; height: 64px; margin: 0; border-radius: 16px; overflow: hidden;
+  display: grid; place-items: center; background: var(--fill); color: var(--text); font-size: 28px; cursor: pointer;
+}
+.logo-tile:focus-within { outline: 2px solid var(--coral); outline-offset: 2px; }
+.logo-tile input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.logo-tile img { width: 100%; height: 100%; object-fit: cover; }
 
 .error { color: var(--coral-text); font-size: 13px; margin: 6px 0 0 4px; }
 .error:empty { display: none; }
