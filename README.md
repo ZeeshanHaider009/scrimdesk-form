@@ -1,16 +1,18 @@
 # ScrimDesk player form
 
 Static pages players open from the registration link organizers share with their poster. Plain HTML, CSS and JavaScript: no framework,
-no analytics, no cookies. About 30 KB in total.
+no libraries, no analytics, no cookies. About 90 KB in total. The 3D look (tilting ticket, turning shapes, sections folding in,
+confetti) is CSS transforms only, and it switches off for people who ask their phone for reduced motion.
 
 | File | What it is |
 |---|---|
 | `r.html` + `r.js` | Registration form. Reads the tournament from `?d=` and sends the registration to Firebase (see `firebase/README.md`). |
+| `countries.js` | Countries for the WhatsApp country-code picker. Generated from the app's `Countries.kt` (same list and order); regenerate it when that file changes. |
 | `privacy.html` | Privacy policy for the store listings. |
 | `index.html` | Short landing page. A link that arrives here with `?d=` is passed on to `r`. |
 | `style.css` | Shared styles, light and dark. |
 
-The pages load `r.js?v=2` and `style.css?v=2`. Bump the number whenever those files change, so players who
+The pages load `r.js?v=4`, `countries.js?v=4` and `style.css?v=4`. Bump the number whenever those files change, so players who
 opened the form before get the new version instead of a cached one.
 
 ## How it fits with the apps

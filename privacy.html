@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <title>Privacy policy · ScrimDesk</title>
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <main>
-  <div class="brand" aria-hidden="true"><span class="brand-icon">🏆</span>ScrimDesk</div>
+  <div class="brand" aria-hidden="true"><span class="brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5V7a3 3 0 0 0 3 3M17 5.5h2.5V7a3 3 0 0 1-3 3M12 14v5M8 19.5h8"/></svg></span>ScrimDesk</div>
   <h1>Privacy policy</h1>
   <p class="muted">ScrimDesk: Tournament Manager · Last updated 11 October 2026</p>
 
@@ -22,7 +22,7 @@
     <p class="muted">Your organizer profile (name, WhatsApp number and an optional logo), your tournaments and their posters, and the registrations: team name and tag, the name and WhatsApp number of the player who registered the team, players' in-game names and game IDs, payment screenshots and team logos. It is stored in the app's private storage.</p>
 
     <h3>Who it is shared with</h3>
-    <p class="muted">Nobody, unless you choose to share. When you send a poster or a group link, it goes through WhatsApp or another app you pick, under that app's own privacy policy. The registration link you share contains the tournament details, your payment number (if you set one) and your WhatsApp number, so players can register with you.</p>
+    <p class="muted">Nobody, unless you choose to share. When you send a poster or a group link, it goes through WhatsApp or another app you pick, under that app's own privacy policy. The registration link you share points to your tournament. So that the registration page can show it, the app keeps the tournament's details in Google Cloud Firestore (Firebase) while it is online: its name, game, start time, number of teams, entry fee and prize pool (if any), your payment method and payment number (if you set one) and your country's dialing code. Anyone who has the link can see them. They are removed together with the tournament's online record, a day after the tournament starts or when you delete it.</p>
 
     <h3>The player registration page</h3>
     <p class="muted">Players fill in a small web page (scrimdesk.web.app). When they tap Send registration, what they entered (team name and tag, their name and WhatsApp number, players' names and game IDs, the payment screenshot and an optional team logo) is stored in Google Cloud Firestore (Firebase) for that tournament only. The organizer's ScrimDesk app downloads it and then deletes it from Firestore; registrations the app never collects are removed a day after the tournament starts. Only the organizer's app can read them. Google processes this data under the Firebase terms and privacy policy. The page itself is hosted on Firebase Hosting (Google), which may keep standard technical logs (such as IP addresses) under Google's privacy policy.</p>

@@ -6,15 +6,15 @@
   <meta name="color-scheme" content="light dark">
   <title>ScrimDesk: Tournament Manager</title>
   <meta name="description" content="Run mobile esports scrims: posters, online registrations, payment checks and WhatsApp group links. Free and private.">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=4">
   <script>
     // A registration link opened without the /r path still reaches the form.
-    if (/[?#&]d=/.test(location.search + location.hash)) location.replace('r' + location.search + location.hash);
+    if (/[?#&][dt]=/.test(location.search + location.hash)) location.replace('r' + location.search + location.hash);
   </script>
 </head>
 <body>
 <main>
-  <div class="brand" aria-hidden="true"><span class="brand-icon">🏆</span>ScrimDesk</div>
+  <div class="brand" aria-hidden="true"><span class="brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5V7a3 3 0 0 0 3 3M17 5.5h2.5V7a3 3 0 0 1-3 3M12 14v5M8 19.5h8"/></svg></span>ScrimDesk</div>
   <h1>ScrimDesk: Tournament Manager</h1>
   <p class="muted">Run mobile esports scrims without the WhatsApp chaos.</p>
 

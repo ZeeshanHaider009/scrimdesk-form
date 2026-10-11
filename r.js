@@ -41,8 +41,9 @@
 
   function $(id) { return document.getElementById(id); }
   function show(id) {
-    ['broken', 'closed', 'register', 'done'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['loading', 'offline', 'broken', 'closed', 'register', 'done'].forEach(function (s) { $(s).hidden = s !== id; });
     window.scrollTo(0, 0);
+    if (id === 'done') celebrate();
   }
 
   // ---- Reading the link ----
@@ -64,6 +65,34 @@
     } catch (e) {
       return null;
     }
+  }
+
+  // Short links (?t=): the tournament id, a UUID written as 22 base64url characters (FormLink.short in the
+  // app). Anything else is taken as the id itself.
+  function readTournamentId() {
+    var match = /[?#&]t=([A-Za-z0-9_-]{1,64})/.exec(location.search + location.hash);
+    if (!match) return null;
+    var token = match[1];
+    if (token.length !== 22) return token;
+    try {
+      var binary = atob(token.replace(/-/g, '+').replace(/_/g, '/') + '==');
+      var hex = '';
+      for (var i = 0; i < binary.length; i++) hex += ('0' + binary.charCodeAt(i).toString(16)).slice(-2);
+      return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // The tournament's server document (FormDetails in the app) as the same object a ?d= link carries.
+  function payloadFrom(id, fields) {
+    function text(key) { return fields[key] && typeof fields[key].stringValue === 'string' ? fields[key].stringValue : ''; }
+    function number(key) { var value = intValue(fields[key]); return value === null || isNaN(value) ? 0 : value; }
+    if (!text('name') || !fields.startAt) return null;
+    return {
+      i: id, n: text('name'), g: text('game'), t: number('startAt'), tt: number('teams'), f: number('fee'),
+      p: number('prize'), cur: text('currency'), pm: text('payMethod'), pn: text('payNumber'), dc: text('dial')
+    };
   }
 
   // ---- Formatting (same rules as the app's Money and date labels) ----
@@ -203,10 +232,12 @@
 
   // ---- Server ----
 
-  function documentsUrl() {
+  function tournamentUrl(id) {
     return 'https://firestore.googleapis.com/v1/projects/' + encodeURIComponent(FIREBASE.projectId) +
-      '/databases/(default)/documents/tournaments/' + encodeURIComponent(p.i);
+      '/databases/(default)/documents/tournaments/' + encodeURIComponent(id);
   }
+
+  function documentsUrl() { return tournamentUrl(p.i); }
 
   function str(value) { return { stringValue: value }; }
 
@@ -240,8 +271,14 @@
   // "3 / 16" in the tournament card, and a note once every slot has a registration.
   function showRegistered(count) {
     if (typeof count !== 'number' || !(count >= 0)) return;
-    $('teams').textContent = count + ' / ' + p.tt;
+    countUp($('teams'), count, ' / ' + p.tt);
     $('teams-label').textContent = 'Registered';
+    $('slots').hidden = false;
+    var left = p.tt - count;
+    $('slots-left').textContent = left === 1 ? '1 slot left' : left + ' slots left';
+    // Only when the box has the row to itself; once every slot is taken the note below says so.
+    $('slots-left').hidden = !!p.p || p.f > 0 || left <= 0;
+    setTimeout(function () { $('slots-fill').style.width = Math.min(100, Math.round(count / p.tt * 100)) + '%'; }, 60);
     var note = $('full-note');
     note.hidden = count < p.tt;
     note.textContent = 'All ' + p.tt + ' slots have a registration. You can still register: the organizer picks the teams.';
@@ -273,14 +310,94 @@
     return { fields: fields };
   }
 
+  // ---- Motion ----
+
+  var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // "0 / 16" counting up to "3 / 16".
+  function countUp(el, to, suffix) {
+    if (REDUCED || to <= 0) { el.textContent = to + suffix; return; }
+    var start = performance.now();
+    function step(now) {
+      var t = Math.min(1, (now - start) / 900);
+      el.textContent = Math.round((1 - Math.pow(1 - t, 3)) * to) + suffix;
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function celebrate() {
+    if (REDUCED) return;
+    var box = $('confetti');
+    var colors = ['#e8533f', '#ff8a3d', '#ffd166', '#3dbe74', '#7b61ff', '#4cc9f0'];
+    for (var i = 0; i < 90; i++) {
+      var piece = document.createElement('i');
+      piece.style.left = (Math.random() * 100).toFixed(1) + '%';
+      piece.style.width = (6 + Math.random() * 6).toFixed(1) + 'px';
+      piece.style.height = (9 + Math.random() * 9).toFixed(1) + 'px';
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDuration = (2.6 + Math.random() * 1.8).toFixed(2) + 's';
+      piece.style.animationDelay = (0.5 + Math.random() * 0.7).toFixed(2) + 's';
+      piece.style.setProperty('--drift', Math.round(Math.random() * 200 - 100) + 'px');
+      piece.style.setProperty('--spin', Math.round(360 + Math.random() * 1080) + 'deg');
+      box.appendChild(piece);
+    }
+    setTimeout(function () { box.textContent = ''; }, 6000);
+  }
+
+  // ---- Country code (same countries and search as the app's country picker) ----
+
+  var COUNTRIES = (window.SD_COUNTRIES || []).map(function (c) { return { iso: c[0], name: c[1], dial: c[2] }; });
+  var PRIMARY = window.SD_PRIMARY_FOR_SHARED_DIAL || [];
+  var country = null;
+  // Accents don't matter in search: "aland" finds the Aland Islands with its ring.
+  var MARKS = new RegExp('[' + String.fromCharCode(0x300) + '-' + String.fromCharCode(0x36F) + ']', 'g');
+
+  function plain(text) {
+    return (text.normalize ? text.normalize('NFD').replace(MARKS, '') : text).toLowerCase();
+  }
+
+  function flagOf(iso) {
+    return String.fromCodePoint(0x1F1E6 + iso.charCodeAt(0) - 65, 0x1F1E6 + iso.charCodeAt(1) - 65);
+  }
+
+  // Countries sharing a code (+1, +44 ...) default to the main one, as in the app.
+  function countryForDial(code) {
+    var matches = COUNTRIES.filter(function (c) { return c.dial === code; });
+    return matches.filter(function (c) { return PRIMARY.indexOf(c.iso) >= 0; })[0] || matches[0] || null;
+  }
+
+  // Digits ("+44", "44") match dial codes; text matches names that start with it first, then names that
+  // contain it and ISO codes ("GB").
+  function searchCountries(query) {
+    var q = plain(query.trim());
+    if (!q) return COUNTRIES;
+    var digits = q.charAt(0) === '+' ? q.slice(1) : q;
+    if (/^[0-9]+$/.test(digits)) return COUNTRIES.filter(function (c) { return c.dial.indexOf(digits) === 0; });
+    var starts = COUNTRIES.filter(function (c) { return plain(c.name).indexOf(q) === 0; });
+    return starts.concat(COUNTRIES.filter(function (c) {
+      return starts.indexOf(c) < 0 && (plain(c.name).indexOf(q) >= 0 || c.iso.toLowerCase() === q);
+    }));
+  }
+
+  function setCountry(c) {
+    country = c;
+    dial = c ? c.dial : '';
+    $('cc-flag').textContent = c ? flagOf(c.iso) : '';
+    $('dial').textContent = c ? '+' + c.dial : 'Code';
+    $('cc-button').setAttribute('aria-label', c ? 'Country code ' + c.name + ' +' + c.dial + ', change' : 'Choose country code');
+    $('wa').placeholder = STRICT[dial] ? STRICT[dial].hint : (dial ? 'Phone number' : 'With country code');
+  }
+
   // ---- Page ----
 
   var p = readPayload();
-  if (!p) {
+  var linkId = p ? null : readTournamentId();
+  if (!p && !linkId) {
     show('broken');
     return;
   }
-  if (!p.i) {
+  if (p && !p.i) {
     $('broken-text').textContent = 'This link is from an older version of ScrimDesk. Ask the organizer to share the tournament again.';
     show('broken');
     return;
@@ -291,41 +408,75 @@
     return;
   }
 
-  var dial = /^\d{1,4}$/.test(p.dc || '') ? p.dc : (LEGACY_DIAL[p.cur] || '');
-  document.title = p.n + ' \u00B7 Registration';
-  $('game').textContent = GAMES[p.g] || 'Tournament';
-  $('name').textContent = p.n;
-  $('when').textContent = when(p.t);
-  // Tournaments made after the app dropped the prize step carry no prize or fee: the poster shows them.
-  $('prize').textContent = p.p ? money(p.p, p.cur) : '';
-  $('prize-fact').hidden = !p.p;
-  $('fee').textContent = p.f > 0 ? money(p.f, p.cur) : '';
-  $('fee-fact').hidden = !(p.f > 0);
-  $('teams').textContent = String(p.tt);
-  $('dial').textContent = '+' + dial;
-  $('wa').placeholder = STRICT[dial] ? STRICT[dial].hint : (dial ? 'Phone number' : 'With country code');
-  $('method').textContent = (METHODS[p.pm] || 'Payment') + (p.f > 0 ? ' \u00B7 ' + money(p.f, p.cur) : '');
-  $('number').textContent = p.pn || '\u2013';
-  $('pay-info').hidden = !p.pn;
-  show('register');
+  var dial = '';
 
-  // Already closed (full, started or deleted)? Say so before anyone fills in the form.
-  fetch(documentsUrl() + '?key=' + encodeURIComponent(FIREBASE.apiKey))
-    .then(function (response) {
-      if (response.status === 404) return { closed: true };
-      if (!response.ok) return null;
-      return response.json().then(function (doc) {
-        var fields = (doc && doc.fields) || {};
-        showRegistered(intValue(fields.registered) || 0);
-        return { closed: !(fields.open && fields.open.booleanValue === true) };
-      });
-    })
-    .then(function (result) { if (result && result.closed) show('closed'); })
-    .catch(function () { /* Offline for now: the form still works once the connection is back. */ });
+  // The tournament card, the payment number and the player's country code.
+  function fill() {
+    dial = /^\d{1,4}$/.test(p.dc || '') ? p.dc : (LEGACY_DIAL[p.cur] || '');
+    document.title = p.n + ' \u00B7 Registration';
+    $('game').textContent = GAMES[p.g] || 'Tournament';
+    $('name').textContent = p.n;
+    $('when').textContent = when(p.t);
+    // Tournaments made after the app dropped the prize step carry no prize or fee: the poster shows them.
+    $('prize').textContent = p.p ? money(p.p, p.cur) : '';
+    $('prize-fact').hidden = !p.p;
+    $('fee').textContent = p.f > 0 ? money(p.f, p.cur) : '';
+    $('fee-fact').hidden = !(p.f > 0);
+    $('teams').textContent = String(p.tt);
+    // Players usually live where the organizer does, so the organizer's code comes first.
+    setCountry(countryForDial(dial));
+    $('method').textContent = (METHODS[p.pm] || 'Payment') + (p.f > 0 ? ' \u00B7 ' + money(p.f, p.cur) : '');
+    $('number').textContent = p.pn || '\u2013';
+    $('pay-info').hidden = !p.pn;
+    show('register');
+  }
+
+  // Open or closed (full, started or deleted), and "3 / 16 registered".
+  function applyStatus(fields) {
+    showRegistered(intValue(fields.registered) || 0);
+    if (!(fields.open && fields.open.booleanValue === true)) show('closed');
+  }
+
+  if (p) {
+    fill();
+    // Already closed? Say so before anyone fills in the form.
+    fetch(documentsUrl() + '?key=' + encodeURIComponent(FIREBASE.apiKey))
+      .then(function (response) {
+        if (response.status === 404) { show('closed'); return; }
+        if (response.ok) return response.json().then(function (doc) { applyStatus((doc && doc.fields) || {}); });
+      })
+      .catch(function () { /* Offline for now: the form still works once the connection is back. */ });
+  } else {
+    loadTournament();
+  }
+
+  // Short links: everything about the tournament comes from its server document.
+  function loadTournament() {
+    show('loading');
+    fetch(tournamentUrl(linkId) + '?key=' + encodeURIComponent(FIREBASE.apiKey))
+      .then(function (response) {
+        if (response.status === 404) { show('closed'); return; }
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json().then(function (doc) {
+          var fields = (doc && doc.fields) || {};
+          p = payloadFrom(linkId, fields);
+          if (!p) {
+            // Published by an app version from before short links: it adds the details on its next check.
+            $('broken-text').textContent = "This tournament isn't ready yet. Ask the organizer to open ScrimDesk, then open the link again.";
+            show('broken');
+            return;
+          }
+          fill();
+          applyStatus(fields);
+        });
+      })
+      .catch(function () { show('offline'); });
+  }
+
+  $('retry').addEventListener('click', loadTournament);
 
   $('copy').addEventListener('click', function () {
-    var button = this;
-    function done() { button.textContent = 'Copied'; setTimeout(function () { button.textContent = 'Copy'; }, 2000); }
+    function done() { $('copy-label').textContent = 'Copied'; setTimeout(function () { $('copy-label').textContent = 'Copy'; }, 2000); }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(p.pn).then(done, function () {});
     }
@@ -388,7 +539,8 @@
     if (preview.src) URL.revokeObjectURL(preview.src);
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
-    $('drop-text').innerHTML = '<b>Change screenshot</b>';
+    $('drop-title').textContent = 'Change screenshot';
+    $('drop').classList.add('has-image');
     setError('shot', '');
   });
 
@@ -448,7 +600,8 @@
     sending = true;
     var button = $('send');
     button.disabled = true;
-    button.textContent = 'Sending\u2026';
+    button.classList.add('loading');
+    $('send-label').textContent = 'Sending' + String.fromCharCode(0x2026);
 
     var shotData;
     compress(shot, [[1280, 0.75], [1080, 0.65], [900, 0.55], [720, 0.5]], SHOT_MAX_BYTES)
@@ -504,7 +657,221 @@
       .then(function () {
         sending = false;
         button.disabled = false;
-        button.textContent = 'Send registration';
+        button.classList.remove('loading');
+        $('send-label').textContent = 'Send registration';
       });
   });
+
+  // ---- Country code sheet ----
+
+  var sheet = $('cc-dialog');
+  var focusAfterClose = null;
+
+  function renderCountries(query) {
+    var list = $('cc-list');
+    var results = searchCountries(query);
+    var fragment = document.createDocumentFragment();
+    results.forEach(function (c) {
+      var item = document.createElement('li');
+      item.setAttribute('role', 'presentation');
+      var option = document.createElement('button');
+      option.type = 'button';
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', String(c === country));
+      option.setAttribute('data-iso', c.iso);
+      [['flag', flagOf(c.iso)], ['name', c.name], ['code', '+' + c.dial]].forEach(function (part) {
+        var span = document.createElement('span');
+        span.className = part[0];
+        span.textContent = part[1];
+        option.appendChild(span);
+      });
+      item.appendChild(option);
+      fragment.appendChild(item);
+    });
+    list.textContent = '';
+    list.appendChild(fragment);
+    list.scrollTop = 0;
+    $('cc-empty').hidden = results.length > 0;
+  }
+
+  function openCountries() {
+    $('cc-search').value = '';
+    renderCountries('');
+    if (typeof sheet.showModal === 'function') sheet.showModal(); else sheet.setAttribute('open', '');
+    // The selected country in the middle. Only the list scrolls (scrollIntoView would also move the page
+    // behind the sheet), and the list may still be scrolled from the last time it was open.
+    var list = $('cc-list');
+    var selected = list.querySelector('[aria-selected="true"]');
+    if (selected) {
+      var offset = selected.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+      list.scrollTop = offset - (list.clientHeight - selected.offsetHeight) / 2;
+    }
+    // On phones the keyboard would cover most of the list, so search only gets focus with a mouse.
+    if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) $('cc-search').focus({ preventScroll: true });
+  }
+
+  function closeCountries() {
+    if (typeof sheet.close === 'function') { sheet.close(); return; }
+    sheet.removeAttribute('open');
+    sheetClosed();
+  }
+
+  function sheetClosed() {
+    (focusAfterClose || $('cc-button')).focus({ preventScroll: true });
+    focusAfterClose = null;
+  }
+
+  $('cc-button').addEventListener('click', openCountries);
+  $('cc-close').addEventListener('click', closeCountries);
+  sheet.addEventListener('close', sheetClosed);
+  // A tap on the dimmed backdrop closes the sheet.
+  sheet.addEventListener('click', function (event) {
+    if (event.target !== sheet) return;
+    var r = sheet.getBoundingClientRect();
+    if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) closeCountries();
+  });
+  $('cc-search').addEventListener('input', function () { renderCountries(this.value); });
+  $('cc-list').addEventListener('click', function (event) {
+    var option = event.target.closest('button[data-iso]');
+    if (!option) return;
+    var iso = option.getAttribute('data-iso');
+    var picked = COUNTRIES.filter(function (c) { return c.iso === iso; })[0];
+    if (!picked) return;
+    setCountry(picked);
+    setError('wa', '');
+    updateProgress();
+    focusAfterClose = $('wa');
+    closeCountries();
+  });
+
+  // A number typed or pasted with "+" switches the flag to that country.
+  $('wa').addEventListener('input', function () {
+    var value = this.value.trim();
+    if (value.charAt(0) !== '+') return;
+    var digits = digitsOf(value);
+    for (var size = 4; size >= 1; size--) {
+      if (digits.length <= size) continue;
+      var found = countryForDial(digits.slice(0, size));
+      if (found) {
+        if (!country || country.dial !== found.dial) setCountry(found);
+        return;
+      }
+    }
+  });
+
+  // ---- Step bar: a section gets its tick once its fields are filled; the one on screen is highlighted ----
+
+  function updateProgress() {
+    var state = {
+      team: !!oneLine($('team').value),
+      you: !!oneLine($('person').value) && !!normalizePhone($('wa').value, dial),
+      players: players().length > 0,
+      pay: !!shot
+    };
+    Object.keys(state).forEach(function (key) {
+      var link = document.querySelector('.stepper [data-step="' + key + '"]');
+      if (link) link.classList.toggle('done', state[key]);
+      $('step-' + key).classList.toggle('complete', state[key]);
+    });
+    var required = [state.team, state.you, state.pay].filter(Boolean).length;
+    $('progress').style.width = Math.round(required / 3 * 100) + '%';
+  }
+  $('form').addEventListener('input', updateProgress);
+  $('form').addEventListener('change', updateProgress);
+  updateProgress();
+
+  var stepLinks = document.querySelectorAll('.stepper a');
+  stepLinks[0].classList.add('current');
+  Array.prototype.forEach.call(stepLinks, function (link) {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      var section = document.querySelector(link.getAttribute('href'));
+      if (section) section.scrollIntoView({ block: 'start' });
+    });
+  });
+
+  if ('IntersectionObserver' in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        Array.prototype.forEach.call(stepLinks, function (link) {
+          link.classList.toggle('current', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    Array.prototype.forEach.call(document.querySelectorAll('.step'), function (step) { spy.observe(step); });
+  }
+
+  // ---- Sections fold up into place as they scroll in ----
+
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !REDUCED) {
+    var revealer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('in');
+        revealer.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -6% 0px' });
+    Array.prototype.forEach.call(reveals, function (el) { revealer.observe(el); });
+  } else {
+    Array.prototype.forEach.call(reveals, function (el) { el.classList.add('in'); });
+  }
+
+  // ---- The ticket tilts in 3D: with the mouse on computers, with the phone itself on Android ----
+
+  (function tilt(el) {
+    if (REDUCED || !el) return;
+    var target = { x: 0, y: 0 };
+    var now = { x: 0, y: 0 };
+    var frame = 0;
+    function draw() {
+      now.x += (target.x - now.x) * 0.1;
+      now.y += (target.y - now.y) * 0.1;
+      el.style.setProperty('--rx', now.x.toFixed(2) + 'deg');
+      el.style.setProperty('--ry', now.y.toFixed(2) + 'deg');
+      el.style.setProperty('--mx', (50 + now.y * 6).toFixed(1) + '%');
+      el.style.setProperty('--my', (20 - now.x * 6).toFixed(1) + '%');
+      var settled = Math.abs(target.x - now.x) < 0.02 && Math.abs(target.y - now.y) < 0.02;
+      frame = settled ? 0 : requestAnimationFrame(draw);
+    }
+    function aim(x, y) {
+      target.x = Math.max(-9, Math.min(9, x));
+      target.y = Math.max(-9, Math.min(9, y));
+      if (!frame) frame = requestAnimationFrame(draw);
+    }
+    el.addEventListener('pointermove', function (event) {
+      if (event.pointerType !== 'mouse') return;
+      var r = el.getBoundingClientRect();
+      aim(((event.clientY - r.top) / r.height - 0.5) * -14, ((event.clientX - r.left) / r.width - 0.5) * 16);
+    });
+    el.addEventListener('pointerleave', function () { aim(0, 0); });
+    // Relative to how the phone is held; slowly settles back when it's held still at a new angle.
+    var rest = null;
+    window.addEventListener('deviceorientation', function (event) {
+      if (event.beta === null || event.gamma === null) return;
+      if (!rest) rest = { beta: event.beta, gamma: event.gamma };
+      rest.beta += (event.beta - rest.beta) * 0.02;
+      rest.gamma += (event.gamma - rest.gamma) * 0.02;
+      aim((event.beta - rest.beta) / 2.5, (event.gamma - rest.gamma) / 2.5);
+    });
+  })($('ticket'));
+
+  // ---- Background shapes drift at different depths while scrolling ----
+
+  if (!REDUCED) {
+    var floats = Array.prototype.slice.call(document.querySelectorAll('.float'));
+    var scheduled = false;
+    window.addEventListener('scroll', function () {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(function () {
+        var y = window.scrollY;
+        floats.forEach(function (f) {
+          f.style.transform = 'translate3d(0,' + (-y * Number(f.getAttribute('data-depth') || 0)).toFixed(1) + 'px,0)';
+        });
+        scheduled = false;
+      });
+    }, { passive: true });
+  }
 })();
