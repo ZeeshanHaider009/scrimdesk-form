@@ -9,6 +9,7 @@ confetti) is CSS transforms only, and it switches off for people who ask their p
 | `r.html` + `r.js` | Registration form. Reads the tournament from `?d=` and sends the registration to Firebase (see `firebase/README.md`). |
 | `countries.js` | Countries for the WhatsApp country-code picker. Generated from the app's `Countries.kt` (same list and order); regenerate it when that file changes. |
 | `privacy.html` | Privacy policy for the store listings. |
+| `support.html` | Support page with the contact email: the Support URL in the store listings. |
 | `index.html` | Short landing page. A link that arrives here with `?d=` is passed on to `r`. |
 | `style.css` | Shared styles, light and dark. |
 
